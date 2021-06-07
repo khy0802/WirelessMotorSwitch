@@ -1,5 +1,3 @@
-#include <DHT11.h>
-
 #include <IRremote.h>
 #include <Servo.h>
 #include <Wire.h> 
@@ -24,7 +22,7 @@ int DIR[] = { 10, 11, 12, 13 };
  * 0 = main menu
  * 1 = displaying ON/OFF
  * 2 = setting date
- * 2 = setting alarm
+ * 3 = setting alarm
  */
 int lcd_state = 0;
 int lcd_count = 0; // Used in LCD display duration
@@ -47,6 +45,9 @@ int day = 30;
 int hour = 23;
 int minute = 30;
 int sec = 40;
+unsigned long mill = 0;
+
+
 
 int cursor_loc = 0;
 int cursor_blink_mill = 1;
@@ -56,8 +57,6 @@ int cursor_blink_mill = 1;
  * sensor variables;
  */
 
-DHT11 dht(2);
- 
 float temp = 1000;
 int humi = 1000;
 
@@ -83,6 +82,7 @@ void loop(){
   loop_lcd();
   detectRev();
 
+
 }
 
 void detectRev(){
@@ -107,19 +107,26 @@ void detectRev(){
 }
 
 void changeState(int state){
-  switch(state){
-    case 0:
-      
-    case 2:
+  
+  if(state <= 1){
+      lcd.noCursor();
+      lcd.noBlink();
+  } else {
       cursor_loc = 0;
       lcd.cursor();
       lcd.blink();
-      break;
   }
 
-  if(state != 2){
-    lcd.noCursor();
-    lcd.noBlink();
+  lcd.clear();
+
+  if(state == 2){
+    lcd.setCursor(0, 1);
+    lcd.print("SETTING MODE");
+    lcd.setCursor(cursor_loc, 0);
+  } else if(state == 3){
+    lcd.setCursor(0, 1);
+    lcd.print("ALARM MODE");
+    lcd.setCursor(cursor_loc, 0);
   }
 }
 
@@ -144,4 +151,30 @@ void togglePower(boolean b){
   addTime();
   lcd.clear();
   lcd_state = 0;
+}
+
+int a_year = 2021;
+int a_month = 5;
+int a_day = 30;
+int a_hour = 23;
+int a_minute = 30;
+int a_sec = 40;
+
+bool checkAlarm(){
+  return a_day == day
+  && a_hour == hour
+  && a_minute == minute
+  && a_sec == sec
+  && a_month == month
+  && a_year == year;
+}
+
+void delete_alarm(){
+  a_year = 2021;
+  a_month = 5;
+  a_day = 30;
+  a_hour = 23;
+  a_minute = 30;
+  a_sec = 40;
+  lcd_hasAlarm = false;
 }

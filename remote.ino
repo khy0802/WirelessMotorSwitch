@@ -34,39 +34,45 @@ void remote(int sig){
     if(lcd_state == 0){
       lcd_state = 2; // Change to date
     } else if(lcd_state == 2){
-      lcd_state = 0; // Change to alarm
+      lcd_state = 3; // Change to alarm
+    } else if(lcd_state == 3){
+      lcd_state = 0; // Change to menu
     } 
     changeState(lcd_state);
   } else if(sig == 12){
     // Delete button
-    
+    delete_alarm();
   } else if(sig == 13){
     // Confirm button
 
     if(lcd_state == 2){
       confirm(true);
-      lcd_state = 0;
-      changeState(0);
+    } else if(lcd_state == 3){
+      confirm(false);
+      lcd_hasAlarm = true;
     }
     
     
   } else if(sig == 14){
     // Previous button
 
-    if(lcd_state == 2){
+    if(lcd_state >= 2){
       prev_cursor();
     }
     
   } else if(sig == 15){
     // Next button
     
-    if(lcd_state == 2){
+    if(lcd_state >= 2){
       next_cursor();
     }
     
   } else if(sig <= 9){
-    if(lcd_state == 2){
-      setNumber(sig);
+    if(lcd_state >= 2){
+      if(lcd_state == 2)
+        setNumber(sig);
+      else if(lcd_state == 3)
+        setAlarmNumber(sig);
       display_date();
       next_cursor();
     }
